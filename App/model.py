@@ -41,22 +41,10 @@ los mismos.
 
 def newCatalog():
     catalog = {'videos': None,
-               'videoIds': None,
-               'categoryIds': None,
-               'countries' : None,
-               'likes' : None,
-               'views' : None}
+               'categoryIds': None,}
     catalog["videos"] = lt.newList('SINGLE_LINKED', cmpVideoIds)
 
-    catalog["videoIds"]=mp.newMap(185650, maptype='CHAINING',loadfactor=2.0,comparefunction=cmpMapVideoIds)
-
     catalog["categoryIds"]= mp.newMap(67, maptype='PROBING',loadfactor=0.5,comparefunction=cmpCategoryIds)
-
-    catalog["countries"]=mp.newMap(241, maptype='PROBING',loadfactor=0.5,comparefunction=cmpMapCountries)
-
-    catalog["likes"]=mp.newMap(185650, maptype='CHAINING', loadfactor= 2.0 comparefunction=cmpMapLikes)
-
-    catalog["views"]=mp.newMap(185650, maptype='CHAINING', loadfactor= 2.0 comparefunction=cmpMapViews)
 
     return catalog
 
@@ -64,11 +52,20 @@ def newCatalog():
 
 def addVideo(catalog, video):
     lt.addLast(catalog["videos"], video)
-    mp.put(catalog["videoIds"], video["video_id"], video)
-    if mp.contains(catalog["likes"], video["likes"])
-        
-    mp.put(catalog["likes"], video["likes"], video)
+    if mp.contains(catalog["categoryIds"], video["category_id"]):
+        addVideoToCategory(catalog,video,video["category_id"])
+    else:
+        addCategory(catalog, video["category_id"])
+        addVideoToCategory(catalog,video,video["category_id"])
+    
 
+def addVideoToCategory(catalog, video, categoryId):
+    vidsInCategory = mp.get(catalog['categoryIds'],categoryId)
+    lt.addLast(vidsInCategory[1],video)
+
+def addCategory(catalog, categoryId):
+    newCategory = lt.newList(datastructure='SINGLE_LINKED')
+    mp.put(catalog["categoryIds"], categoryId, newCategory)
 
 # Funciones para creacion de datos
 
@@ -84,14 +81,6 @@ def cmpVideoIds(id1,id2):
     else:
         return -1
 
-def cmpMapVideoIds(id, entry):
-    identry = me.getKey(entry)
-    if (int(id) == int(identry)):
-        return 0
-    elif (int(id) > int(identry)):
-        return 1
-    else:
-        return -1
 
 def cmpCategoryIds(id, catid):
     catentry = me.getKey(catid)
@@ -111,22 +100,6 @@ def cmpMapCountries(id, tag):
     else:
         return 0
 
-def cmpMapLikes(likes, entry):
-    likesentry = me.getKey(entry)
-    if (int(likes) == int(likesentry)):
-        return 0
-    elif (int(likes) > int(likesentry)):
-        return 1
-    else:
-        return -1
 
-def cmpMapViews(views, entry):
-    viewsentry = me.getKey(entry)
-    if (int(views) == int(viewsentry)):
-        return 0
-    elif (int(views) > int(viewsentry)):
-        return 1
-    else:
-        return -1
 
 # Funciones de ordenamiento
