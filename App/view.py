@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
- """
+"""
 
 import config as cf
 import sys
@@ -39,19 +39,53 @@ def printMenu():
     print("1- Cargar información en el catálogo")
     print("2- Buscar los n videos con más LIKES para el nombre de una categoría específica")
 
-catalog = None
+def initCatalog():
+    return controller.initCatalog()
+
+def loadData(catalog):
+    controller.loadData(catalog)
+
+#Funciones para imprimir los resultados
+
+def printResultsReq1(videoList, numberVideos):
+    size = lt.size(videoList)
+    if size > numberVideos:
+        i = 0
+        while abs(i) < numberVideos:
+            video = lt.getElement(videoList, i)
+            print('Titulo: '+video["title"]+"\nTitulo del canal: "+video["channel_title"]+"\nFecha en tendencia: "+video["trending_date"]+"\nViews: "+video["views"]+"\nDislikes: "+video["dislikes"])
+            i-=1
+    else:
+        print("No hay suficientes videos, ingrese un numero menor")
+
+catalog = {}
 
 """
 Menu principal
 """
+
 while True:
     printMenu()
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
         print("Cargando información de los archivos ....")
+        catalog = initCatalog()
+        loadData(catalog)
+        print('Total de libros cargados: ' + str(lt.size(catalog['videos'])))
 
     elif int(inputs[0]) == 2:
-        pass
+        numberVideos = int(input("Ingrese el número de videos con más views que desea encontrar: "))
+        if numberVideos < 1 or numberVideos > lt.size(catalog["videos"]):
+            print("Ingrese un entero positivo mayor a 0 y menor a ", lt.size(catalog["videos"]))
+        bestCategory = str(input("Ingrese la categoria de videos que desea consultar: ")).strip().lower()
+        result = controller.firstRequirement(catalog, bestCategory)
+        if result == -1:
+            print("No se encontraro la categoria, ingrese una valida")
+        elif result == -2:
+            print("No hay videos para esta categoria")
+        else:
+            printResultsReq1(result, numberVideos)
+
 
     else:
         sys.exit(0)

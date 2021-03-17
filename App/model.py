@@ -41,35 +41,66 @@ los mismos.
 
 def newCatalog():
     catalog = {'videos': None,
-               'categoryIds': None,}
+               'categoryIds': None,
+               'categoryNames' : None}
     catalog["videos"] = lt.newList('SINGLE_LINKED', cmpVideoIds)
 
     catalog["categoryIds"]= mp.newMap(67, maptype='PROBING',loadfactor=0.5,comparefunction=cmpCategoryIds)
 
+    catalog["categoryNames"]=mp.newMap(67, maptype='PROBING',loadfactor=0.5,comparefunction=cmpCategoryNames)
     return catalog
 
 # Funciones para agregar informacion al catalogo
 
 def addVideo(catalog, video):
     lt.addLast(catalog["videos"], video)
-    if mp.contains(catalog["categoryIds"], video["category_id"]):
+    if mp.contains(catalog["categoryIds"], int(video["category_id"])):
         addVideoToCategory(catalog,video,video["category_id"])
     else:
-        addCategory(catalog, video["category_id"])
+        addCategoryId(catalog, video["category_id"])
         addVideoToCategory(catalog,video,video["category_id"])
     
-
 def addVideoToCategory(catalog, video, categoryId):
+    vidsInCategory = {}
     vidsInCategory = mp.get(catalog['categoryIds'],categoryId)
-    lt.addLast(vidsInCategory[1],video)
+    videoList = vidsInCategory["value"]
+    lt.addLast(videoList, video)
+    mp.put(catalog['categoryIds'],categoryId, videoList)
 
-def addCategory(catalog, categoryId):
-    newCategory = lt.newList(datastructure='SINGLE_LINKED')
-    mp.put(catalog["categoryIds"], categoryId, newCategory)
+
+def addCategoryId(catalog, categoryId):
+    newCategoryId = lt.newList(datastructure='SINGLE_LINKED')
+    mp.put(catalog["categoryIds"], categoryId, newCategoryId)
+
+
+
+def addCategory(catalog, category):
+    t = newCategory(category['id'], category['name'])
+    mp.put(catalog["categoryNames"], t["name"].lower(), t["id"])
+
 
 # Funciones para creacion de datos
 
+def newCategory(category_id,name):
+    category = {'id': int(category_id), 'name': name.strip()}
+    return category
+
 # Funciones de consulta
+
+def firstRequirement(catalog, bestCategoryId):
+    if mp.contains(catalog["categoryIds"],bestCategoryId):
+        videosCategory= mp.get(catalog["categoryIds"],bestCategoryId)
+        return videosCategory["value"]
+    else:
+        return -1
+
+def findCategoryId(catalog, categoryName):
+    categoryName.strip()
+    if mp.contains(catalog["categoryNames"], categoryName):
+        categoryId = mp.get(catalog["categoryNames"], categoryName)
+        return categoryId["value"]
+    else:
+        return -1
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
@@ -91,6 +122,16 @@ def cmpCategoryIds(id, catid):
     else:
         return 0
 
+def cmpCategoryNames(name,catname):
+    nameEntry = me.getKey(catname)
+    if name.strip()==nameEntry.strip():
+        return 0
+    elif name.strip() > nameEntry.strip():
+        return 1
+    else:
+        return 0
+
+        
 def cmpMapCountries(id, tag):
     tagentry = me.getKey(tag)
     if (id == tagentry):
