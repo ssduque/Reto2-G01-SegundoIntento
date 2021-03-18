@@ -26,6 +26,7 @@
 
 
 import config as cf
+from DISClib.Algorithms.Sorting import mergesort as merge
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
@@ -47,7 +48,7 @@ def newCatalog():
 
     catalog["categoryIds"]= mp.newMap(67, maptype='PROBING',loadfactor=0.5,comparefunction=cmpCategoryIds)
 
-    catalog["categoryNames"]=mp.newMap(67, maptype='PROBING',loadfactor=0.5,comparefunction=cmpCategoryNames)
+    catalog["categoryNames"]= lt.newList(datastructure='ARRAY_LIST')
     return catalog
 
 # Funciones para agregar informacion al catalogo
@@ -76,13 +77,13 @@ def addCategoryId(catalog, categoryId):
 
 def addCategory(catalog, category):
     t = newCategory(category['id'], category['name'])
-    mp.put(catalog["categoryNames"], t["name"].lower(), t["id"])
+    lt.addLast(catalog['categoryNames'], t)
 
 
 # Funciones para creacion de datos
 
 def newCategory(category_id,name):
-    category = {'id': int(category_id), 'name': name.strip()}
+    category = {'id': category_id, 'name': name}
     return category
 
 # Funciones de consulta
@@ -94,13 +95,16 @@ def firstRequirement(catalog, bestCategoryId):
     else:
         return -1
 
-def findCategoryId(catalog, categoryName):
-    categoryName.strip()
-    if mp.contains(catalog["categoryNames"], categoryName):
-        categoryId = mp.get(catalog["categoryNames"], categoryName)
-        return categoryId["value"]
-    else:
-        return -1
+
+
+def findCategoryid(catalog, category):
+    range1 = lt.size(catalog["categoryNames"])
+    for position in range(1, range1 + 1):
+        element = lt.getElement(catalog["categoryNames"], position)
+        print(element)
+        if (element["name"].strip().lower()==category.strip().lower()):
+            return element["id"]
+
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
@@ -142,5 +146,14 @@ def cmpMapCountries(id, tag):
         return 0
 
 
+def cmpVideosByLikes(video1, video2):
+    if float(video1['likes']) < float(video2['likes']):
+        return True
+    else:
+        return False
 
 # Funciones de ordenamiento
+
+def mergeSortBylikes(videoList):
+    sortedList = merge.sort(videoList, cmpVideosByLikes)
+    return sortedList
