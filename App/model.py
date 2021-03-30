@@ -42,37 +42,33 @@ los mismos.
 
 def newCatalog():
     catalog = {'videos': None,
-               'categoryIds': None,
+               'categoryVideos': None,
                'categoryNames' : None}
     catalog["videos"] = lt.newList('SINGLE_LINKED', cmpVideoIds)
 
-    catalog["categoryIds"]= mp.newMap(67, maptype='PROBING',loadfactor=0.5,comparefunction=cmpCategoryIds)
+    catalog["categoryVideos"]= mp.newMap(67, maptype='PROBING',loadfactor=0.5,comparefunction=cmpCategoryIds)
 
     catalog["categoryNames"]= lt.newList(datastructure='ARRAY_LIST')
     return catalog
 
 # Funciones para agregar informacion al catalogo
 
+
 def addVideo(catalog, video):
     lt.addLast(catalog["videos"], video)
-    if mp.contains(catalog["categoryIds"], int(video["category_id"])):
-        addVideoToCategory(catalog,video,video["category_id"])
+    addVideoToCategory(catalog, video["category_id"], video)
+
+
+def addVideoToCategory(catalog, categoryId, video):
+    categoryVideos = catalog["categoryVideos"]
+    existCategory = mp.contains(categoryVideos, categoryId)
+    if existCategory:
+        entry = mp.get(categoryVideos, categoryId)
+        category = me.getValue(entry)
     else:
-        addCategoryId(catalog, video["category_id"])
-        addVideoToCategory(catalog,video,video["category_id"])
-    
-def addVideoToCategory(catalog, video, categoryId):
-    vidsInCategory = {}
-    vidsInCategory = mp.get(catalog['categoryIds'],categoryId)
-    videoList = vidsInCategory["value"]
-    lt.addLast(videoList, video)
-    mp.put(catalog['categoryIds'],categoryId, videoList)
-
-
-def addCategoryId(catalog, categoryId):
-    newCategoryId = lt.newList(datastructure='SINGLE_LINKED')
-    mp.put(catalog["categoryIds"], categoryId, newCategoryId)
-
+        category = newCategoryVideos(categoryId)
+        mp.put(categoryVideos, categoryId, category)
+    lt.addLast(category["videos"], video)
 
 
 def addCategory(catalog, category):
@@ -82,19 +78,28 @@ def addCategory(catalog, category):
 
 # Funciones para creacion de datos
 
-def newCategory(category_id,name):
-    category = {'id': category_id, 'name': name}
+
+def newCategory(categoryId,name):
+    category = {'id': int(categoryId), 'name': name.strip()}
     return category
+
+
+def newCategoryVideos(categoryId):
+    category = {"categoryId": 0, "videos": None}
+    category["categoryId"] = categoryId
+    category["videos"] = lt.newList("SINGLE_LINKED", cmpCategoryIds)
+    return category
+
 
 # Funciones de consulta
 
+
 def firstRequirement(catalog, bestCategoryId):
-    if mp.contains(catalog["categoryIds"],bestCategoryId):
-        videosCategory= mp.get(catalog["categoryIds"],bestCategoryId)
+    if mp.contains(catalog["categoryVideos"],bestCategoryId):
+        videosCategory= mp.get(catalog["categoryVideos"],bestCategoryId)
         return videosCategory["value"]
     else:
         return -1
-
 
 
 def findCategoryid(catalog, category):
@@ -107,6 +112,7 @@ def findCategoryid(catalog, category):
 
 
 # Funciones utilizadas para comparar elementos dentro de una lista
+
 
 def cmpVideoIds(id1,id2):
     if (id1 == id2):
@@ -124,7 +130,8 @@ def cmpCategoryIds(id, catid):
     elif (int(id) > int(catentry)):
         return 1
     else:
-        return 0
+        return -1
+
 
 def cmpCategoryNames(name,catname):
     nameEntry = me.getKey(catname)
@@ -133,7 +140,7 @@ def cmpCategoryNames(name,catname):
     elif name.strip() > nameEntry.strip():
         return 1
     else:
-        return 0
+        return -1
 
         
 def cmpMapCountries(id, tag):
@@ -143,7 +150,7 @@ def cmpMapCountries(id, tag):
     elif (id > tagentry):
         return 1
     else:
-        return 0
+        return -1
 
 
 def cmpVideosByLikes(video1, video2):
