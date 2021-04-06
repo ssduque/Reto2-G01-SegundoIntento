@@ -95,11 +95,10 @@ def newCategoryVideos(categoryId):
 
 
 def firstRequirement(catalog, bestCategoryId):
-    if mp.contains(catalog["categoryVideos"],bestCategoryId):
-        videosCategory= mp.get(catalog["categoryVideos"],bestCategoryId)
-        return videosCategory["value"]
-    else:
-        return -1
+    videosCategory= mp.get(catalog["categoryVideos"],bestCategoryId)
+    if videosCategory:
+        return me.getValue(videosCategory)["videos"]
+    return -2
 
 
 def findCategoryid(catalog, category):

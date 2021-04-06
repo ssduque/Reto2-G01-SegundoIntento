@@ -67,8 +67,5 @@ def firstRequirement(catalog, bestCategory):
         return -1
     else:
         result = model.firstRequirement(catalog, bestCategoryId)
-        if result == -1:
-            return -2
-        else:
-            return result
+        return result
     

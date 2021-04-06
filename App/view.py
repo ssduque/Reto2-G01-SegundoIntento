@@ -48,20 +48,20 @@ def loadData(catalog):
 
 #Funciones para imprimir los resultados
 
+        
+
 def printResultsReq1(videoList, numberVideos):
-    size = lt.size(videoList)
-    videoList = controller.mergeSortBylikes(videoList)
-    print(videoList)
-    '''
-    if size > numberVideos:
-        i = 0
-        while abs(i) < numberVideos:
-            video = lt.getElement(videoList, i)
-            print('Titulo: '+video["title"]+"\nTitulo del canal: "+video["channel_title"]+"\nFecha en tendencia: "+video["trending_date"]+"\nViews: "+video["views"]+"\nDislikes: "+video["dislikes"])
-            i-=1
+    if videoList == -1:
+        print("No se encontraro la categoria, ingrese una valida")
+    elif videoList == -2:
+        print("No hay videos para esta categoria")
     else:
-        print("No hay suficientes videos, ingrese un numero menor")
-        '''
+        print('Se encontraron: ' + str(lt.size(videoList)) + ' videos')
+        for video in lt.iterator(videoList):
+            print('Titulo: '+video["title"]+"\nTitulo del canal: "+video["channel_title"]+"\nFecha en tendencia: "+video["trending_date"]+"\nViews: "+video["views"]+"\nDislikes: "+video["dislikes"])
+        print("\n")
+
+
 
 catalog = {}
 
@@ -82,15 +82,9 @@ while True:
         numberVideos = int(input("Ingrese el número de videos con más views que desea encontrar: "))
         if numberVideos < 1 or numberVideos > lt.size(catalog["videos"]):
             print("Ingrese un entero positivo mayor a 0 y menor a ", lt.size(catalog["videos"]))
-        
-        
-        bestCategory = str(input("Ingrese la categoria de videos que desea consultar: ")).strip().lower()
-        result = controller.firstRequirement(catalog, bestCategory)
-        if result == -1:
-            print("No se encontraro la categoria, ingrese una valida")
-        elif result == -2:
-            print("No hay videos para esta categoria")
         else:
+            bestCategory = str(input("Ingrese la categoria de videos que desea consultar: ")).strip().lower()
+            result = controller.firstRequirement(catalog, bestCategory)
             printResultsReq1(result, numberVideos)
             
 
