@@ -57,8 +57,12 @@ def printResultsReq1(videoList, numberVideos):
         print("No hay videos para esta categoria")
     else:
         print('Se encontraron: ' + str(lt.size(videoList)) + ' videos')
+        counter = 0
         for video in lt.iterator(videoList):
             print('Titulo: '+video["title"]+"\nTitulo del canal: "+video["channel_title"]+"\nFecha en tendencia: "+video["trending_date"]+"\nViews: "+video["views"]+"\nDislikes: "+video["dislikes"])
+            counter+=1
+            if counter >= numberVideos:
+                break        
         print("\n")
 
 

@@ -56,7 +56,7 @@ def newCatalog():
 
 def addVideo(catalog, video):
     lt.addLast(catalog["videos"], video)
-    addVideoToCategory(catalog, video["category_id"], video)
+    addVideoToCategory(catalog, int(video["category_id"]), video)
 
 
 def addVideoToCategory(catalog, categoryId, video):
@@ -95,19 +95,17 @@ def newCategoryVideos(categoryId):
 
 
 def firstRequirement(catalog, bestCategoryId):
-    videosCategory= mp.get(catalog["categoryVideos"],bestCategoryId)
+    videosCategory= mp.get(catalog["categoryVideos"],int(bestCategoryId))
     if videosCategory:
         return me.getValue(videosCategory)["videos"]
     return -2
 
 
 def findCategoryid(catalog, category):
-    range1 = lt.size(catalog["categoryNames"])
-    for position in range(1, range1 + 1):
-        element = lt.getElement(catalog["categoryNames"], position)
-        print(element)
-        if (element["name"].strip().lower()==category.strip().lower()):
-            return element["id"]
+    for cat in lt.iterator(catalog["categoryNames"]):
+        if (cat["name"].strip().lower() == category.strip().lower()):
+            return cat["id"]
+    return -1
 
 
 # Funciones utilizadas para comparar elementos dentro de una lista
