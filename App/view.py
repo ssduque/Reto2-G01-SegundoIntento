@@ -58,11 +58,10 @@ def printResultsReq1(videoList, numberVideos):
     else:
         print('Se encontraron: ' + str(lt.size(videoList)) + ' videos')
         counter = 0
-        for video in lt.iterator(videoList):
+        while counter < numberVideos:
+            video = lt.getElement(videoList, counter)
             print('Titulo: '+video["title"]+"\nTitulo del canal: "+video["channel_title"]+"\nFecha en tendencia: "+video["trending_date"]+"\nViews: "+video["views"]+"\nDislikes: "+video["dislikes"])
-            counter+=1
-            if counter >= numberVideos:
-                break        
+            counter+=1     
         print("\n")
 
 
