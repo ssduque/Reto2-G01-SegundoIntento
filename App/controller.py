@@ -42,7 +42,7 @@ def loadData(catalog):
     loadCategories(catalog)
 
 def loadVideos(catalog):
-    videosfile =  cf.data_dir + 'Samples/videos-large.csv'
+    videosfile =  cf.data_dir + 'Samples/videos-10pct.csv'
     input_file = csv.DictReader(open(videosfile, encoding='utf-8'))
     for video in input_file:
         model.addVideo(catalog, video)
@@ -59,6 +59,9 @@ def loadCategories(catalog):
 def mergeSortBylikes(videoList):
     return model.mergeSortBylikes(videoList)
 
+def mergeSortByViews(videoList):
+    return model.mergeSortByViews(videoList)
+
 # Funciones de consulta sobre el catálogo
 
 
@@ -68,6 +71,6 @@ def firstRequirement(catalog, bestCategory):
         return -1
     else:
         result = model.firstRequirement(catalog, bestCategoryId)
-        mergeSortBylikes(result)
+        mergeSortByViews(result)
         return result
     

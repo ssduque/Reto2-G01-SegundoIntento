@@ -51,18 +51,13 @@ def loadData(catalog):
         
 
 def printResultsReq1(videoList, numberVideos):
-    if videoList == -1:
-        print("No se encontraro la categoria, ingrese una valida")
-    elif videoList == -2:
-        print("No hay videos para esta categoria")
-    else:
-        print('Se encontraron: ' + str(lt.size(videoList)) + ' videos')
-        counter = 0
-        while counter < numberVideos:
-            video = lt.getElement(videoList, counter)
-            print('Titulo: '+video["title"]+"\nTitulo del canal: "+video["channel_title"]+"\nFecha en tendencia: "+video["trending_date"]+"\nViews: "+video["views"]+"\nDislikes: "+video["dislikes"])
-            counter+=1     
-        print("\n")
+    counter = 0
+    for video in lt.iterator(result):
+        print("Title: ", video["title"], "| Trending date: ", video["trending_date"], "| Channel title", video["channel_title"],
+        "| Publish time: ", video["publish_time"], "| Views: ", video["views"], "| Likes: ", video["likes"], "| Dislikes: ", video["dislikes"])
+        counter +=1
+        if counter == numberVideos:
+            break
 
 
 
@@ -79,7 +74,7 @@ while True:
         print("Cargando información de los archivos ....")
         catalog = initCatalog()
         loadData(catalog)
-        print('Total de libros cargados: ' + str(lt.size(catalog['videos'])))
+        print('Total de videos cargados: ' + str(lt.size(catalog['videos'])))
 
     elif int(inputs[0]) == 2:
         numberVideos = int(input("Ingrese el número de videos con más views que desea encontrar: "))
@@ -88,7 +83,8 @@ while True:
         else:
             bestCategory = str(input("Ingrese la categoria de videos que desea consultar: ")).strip().lower()
             result = controller.firstRequirement(catalog, bestCategory)
-            printResultsReq1(result, numberVideos)
+            printResultsReq1(catalog, numberVideos)
+
             
 
 

@@ -61,13 +61,13 @@ def addVideo(catalog, video):
 
 def addVideoToCategory(catalog, categoryId, video):
     categoryVideos = catalog["categoryVideos"]
-    existCategory = mp.contains(categoryVideos, categoryId)
+    existCategory = mp.contains(categoryVideos, int(categoryId))
     if existCategory:
         entry = mp.get(categoryVideos, categoryId)
         category = me.getValue(entry)
     else:
-        category = newCategoryVideos(categoryId)
-        mp.put(categoryVideos, categoryId, category)
+        category = newCategoryVideos(int(categoryId))
+        mp.put(categoryVideos, int(categoryId), category)
     lt.addLast(category["videos"], video)
 
 
@@ -86,7 +86,7 @@ def newCategory(categoryId,name):
 
 def newCategoryVideos(categoryId):
     category = {"categoryId": 0, "videos": None}
-    category["categoryId"] = categoryId
+    category["categoryId"] = int(categoryId)
     category["videos"] = lt.newList("SINGLE_LINKED", cmpCategoryIds)
     return category
 
@@ -127,7 +127,7 @@ def cmpCategoryIds(id, catid):
     elif (int(id) > int(catentry)):
         return 1
     else:
-        return -1
+        return 0
 
 
 def cmpCategoryNames(name,catname):
@@ -152,12 +152,22 @@ def cmpMapCountries(id, tag):
 
 def cmpVideosByLikes(video1, video2):
     if float(video1['likes']) < float(video2['likes']):
-        return True
-    else:
         return False
+    else:
+        return True
+
+def cmpVideosByViews(video1, video2):
+    if float(video1['views']) < float(video2['views']):
+        return False
+    else:
+        return True
 
 # Funciones de ordenamiento
 
 def mergeSortBylikes(videoList):
     sortedList = merge.sort(videoList, cmpVideosByLikes)
+    return sortedList
+
+def mergeSortByViews(videoList):
+    sortedList = merge.sort(videoList, cmpVideosByViews)
     return sortedList
