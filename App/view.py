@@ -74,7 +74,10 @@ while True:
         print("Cargando información de los archivos ....")
         catalog = initCatalog()
         loadData(catalog)
-        print('Total de videos cargados: ' + str(lt.size(catalog['videos'])))
+        answer = controller.loadData(catalog)
+        print('Total de libros cargados: ' + str(lt.size(catalog['videos'])))
+        print("Tiempo [ms]: ", f"{answer[0]:.3f}", "  ||  ",
+              "Memoria [kB]: ", f"{answer[1]:.3f}")
 
     elif int(inputs[0]) == 2:
         numberVideos = int(input("Ingrese el número de videos con más views que desea encontrar: "))
