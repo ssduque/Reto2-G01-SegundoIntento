@@ -46,7 +46,7 @@ def newCatalog():
                'categoryNames' : None}
     catalog["videos"] = lt.newList('SINGLE_LINKED', cmpVideoIds)
 
-    catalog["categoryVideos"]= mp.newMap(67, maptype='PROBING',loadfactor=0.8,comparefunction=cmpCategoryIds)
+    catalog["categoryVideos"]= mp.newMap(67, maptype='CHAINING',loadfactor=6.00,comparefunction=cmpCategoryIds)
 
     catalog["categoryNames"]= lt.newList(datastructure='ARRAY_LIST')
     return catalog
