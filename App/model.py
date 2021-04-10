@@ -56,25 +56,17 @@ def newCatalog():
 
 def addVideo(catalog, video):
     lt.addLast(catalog["videos"], video)
-    addVideoToCategory(catalog, int(video["category_id"]), video)
-
-
-def addVideoToCategory(catalog, categoryId, video):
-    categoryVideos = catalog["categoryVideos"]
-    existCategory = mp.contains(categoryVideos, int(categoryId))
-    if existCategory:
-        entry = mp.get(categoryVideos, categoryId)
-        category = me.getValue(entry)
-    else:
-        category = newCategoryVideos(int(categoryId))
-        mp.put(categoryVideos, int(categoryId), category)
-    lt.addLast(category["videos"], video)
-
+    category = mp.get(catalog["categoryVideos"], int(video["category_id"]))
+    if category:
+        lt.addLast(category["value"]["videos"],video)
 
 def addCategory(catalog, category):
     t = newCategory(category['id'], category['name'])
     lt.addLast(catalog['categoryNames'], t)
 
+def addCategoryVideo(catalog, category):
+    newCategory = newCategoryVideos(category["id"])
+    mp.put(catalog["categoryVideos"], int(category["id"]) ,newCategory)
 
 # Funciones para creacion de datos
 
@@ -87,7 +79,7 @@ def newCategory(categoryId,name):
 def newCategoryVideos(categoryId):
     category = {"categoryId": 0, "videos": None}
     category["categoryId"] = int(categoryId)
-    category["videos"] = lt.newList("SINGLE_LINKED", cmpCategoryIds)
+    category["videos"] = lt.newList(datastructure="SINGLE_LINKED")
     return category
 
 
@@ -96,9 +88,46 @@ def newCategoryVideos(categoryId):
 
 def firstRequirement(catalog, bestCategoryId):
     videosCategory= mp.get(catalog["categoryVideos"],int(bestCategoryId))
-    if videosCategory:
-        return me.getValue(videosCategory)["videos"]
-    return -2
+    return me.getValue(videosCategory)["videos"]
+
+def secondRequirement():
+    pass
+
+def thirdRequirement(catalog, bestCategoryId):
+    videosCategory = mp.get(catalog["categoryVideos"], int(bestCategoryId))
+    videoList = me.getValue(videosCategory)["videos"]
+    sortedList = mergeSortByVideoId(videoList)
+    return findTopVideoByTrendingTime(sortedList)
+
+
+
+def repCountForVideo(sortedCatalog,videoid,initialPos):
+    reps = 0
+    position = initialPos
+    range1 = lt.size(sortedCatalog)
+    while position < range1 +1:
+        videoComp = lt.getElement(sortedCatalog, position)
+        if videoComp["video_id"]== videoid:
+            reps +=1
+        else:
+            break
+        position +=1
+    return reps
+
+def findTopVideoByTrendingTime(sortedCatalog):
+    videoMayor = None
+    repsMayor = 0
+    videoComp = None
+    repsComp = 0
+    position = 1
+    while position <= lt.size(sortedCatalog):
+        videoComp = lt.getElement(sortedCatalog,position)
+        repsComp = repCountForVideo(sortedCatalog,videoComp["video_id"],position)
+        if repsComp > repsMayor:
+            videoMayor = lt.getElement(sortedCatalog,position)
+            repsMayor = repsComp
+        position+=repsComp
+    return (videoMayor,repsMayor)
 
 
 def findCategoryid(catalog, category):
@@ -162,6 +191,12 @@ def cmpVideosByViews(video1, video2):
     else:
         return True
 
+def cmpVideosByVideoId(video1, video2):
+    if video1["video_id"] < video2["video_id"]:
+        return True
+    else:
+        return False
+
 # Funciones de ordenamiento
 
 def mergeSortBylikes(videoList):
@@ -170,4 +205,8 @@ def mergeSortBylikes(videoList):
 
 def mergeSortByViews(videoList):
     sortedList = merge.sort(videoList, cmpVideosByViews)
+    return sortedList
+
+def mergeSortByVideoId(videoList):
+    sortedList = merge.sort(videoList, cmpVideosByVideoId)
     return sortedList

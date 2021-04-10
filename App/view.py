@@ -39,6 +39,10 @@ def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
     print("2- Buscar los n videos con más LIKES para el nombre de una categoría específica")
+    print("3- Encontrar video tendencia por país")
+    print("4- Encontrar video tendencia por categoría")
+    print("5- Buscar los videos con más likes")
+    print("0- Salir")
 
 def initCatalog():
     return controller.initCatalog()
@@ -59,7 +63,15 @@ def printResultsReq1(videoList, numberVideos):
         if counter == numberVideos:
             break
 
+def printResultsReq2():
+    pass
 
+def printREsultsReq3(results):
+    video = results[0]
+    print('Titulo: ' + video["title"]+"\nTitulo del canal: " + video["channel_title"] + "\nCategory_id "+ video["category_id"] + "\nDias: " + str(results[1]))
+
+
+#---------------------------------------
 
 catalog = {}
 
@@ -86,7 +98,15 @@ while True:
         else:
             bestCategory = str(input("Ingrese la categoria de videos que desea consultar: ")).strip().lower()
             result = controller.firstRequirement(catalog, bestCategory)
-            printResultsReq1(catalog, numberVideos)
+            printResultsReq1(result, numberVideos)
+    
+    elif int(inputs[0]) == 3:
+        pass
+
+    elif int(inputs[0]) == 4:
+        bestCategory = str(input("Ingrese la categoria de videos que desea consultar: ")).strip().lower()
+        results = controller.thirdRequirement(catalog, bestCategory)
+        printREsultsReq3(results)
 
             
 
