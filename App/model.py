@@ -43,12 +43,15 @@ los mismos.
 def newCatalog():
     catalog = {'videos': None,
                'categoryVideos': None,
-               'categoryNames' : None}
+               'categoryNames' : None,
+               "countryVideos": None}
     catalog["videos"] = lt.newList('SINGLE_LINKED', cmpVideoIds)
 
-    catalog["categoryVideos"]= mp.newMap(67, maptype='CHAINING',loadfactor=6.00,comparefunction=cmpCategoryIds)
+    catalog["categoryVideos"]= mp.newMap(67, maptype='PROBING',loadfactor=0.5,comparefunction=cmpCategoryIds)
 
     catalog["categoryNames"]= lt.newList(datastructure='ARRAY_LIST')
+
+    catalog["countryVideos"]= mp.newMap(23, maptype="PROBING", loadfactor=0.5,comparefunction= cmpMapCountries)
     return catalog
 
 # Funciones para agregar informacion al catalogo
@@ -57,6 +60,7 @@ def newCatalog():
 def addVideo(catalog, video):
     lt.addLast(catalog["videos"], video)
     category = mp.get(catalog["categoryVideos"], int(video["category_id"]))
+    addCountryVideo(catalog,video["country"].lower().strip(),video)
     if category:
         lt.addLast(category["value"]["videos"],video)
 
@@ -67,6 +71,19 @@ def addCategory(catalog, category):
 def addCategoryVideo(catalog, category):
     newCategory = newCategoryVideos(category["id"])
     mp.put(catalog["categoryVideos"], int(category["id"]) ,newCategory)
+
+def addCountryVideo(catalog,country,video):
+    countries = catalog["countryVideos"]
+    existCountry = mp.contains(countries, country)
+    if existCountry:
+        entry = mp.get(countries, country)
+        countryEntry = me.getValue(entry)
+    else:
+        countryEntry = newCountryVideos(country)
+        mp.put(countries,country,countryEntry)
+    lt.addLast(countryEntry["videos"], video)
+
+
 
 # Funciones para creacion de datos
 
@@ -81,6 +98,12 @@ def newCategoryVideos(categoryId):
     category["categoryId"] = int(categoryId)
     category["videos"] = lt.newList(datastructure="SINGLE_LINKED")
     return category
+
+def newCountryVideos(country):
+    entry = {"country": "", "videos": None}
+    entry["country"]= country
+    entry["videos"] = lt.newList(datastructure="SINGLE_LINKED")
+    return entry
 
 
 # Funciones de consulta
@@ -99,6 +122,9 @@ def thirdRequirement(catalog, bestCategoryId):
     sortedList = mergeSortByVideoId(videoList)
     return findTopVideoByTrendingTime(sortedList)
 
+def fourthRequirement(catalog,country):
+    videosCountry = mp.get(catalog["countryVideos"], country.lower().strip())
+    return me.getValue(videosCountry)["videos"]
 
 
 def repCountForVideo(sortedCatalog,videoid,initialPos):

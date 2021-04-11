@@ -66,9 +66,18 @@ def printResultsReq1(videoList, numberVideos):
 def printResultsReq2():
     pass
 
-def printREsultsReq3(results):
+def printResultsReq3(results):
     video = results[0]
     print('Titulo: ' + video["title"]+"\nTitulo del canal: " + video["channel_title"] + "\nCategory_id "+ video["category_id"] + "\nDias: " + str(results[1]))
+
+def printResultsReq4(videoList,numberVideos):
+    counter = 0
+    for video in lt.iterator(result):
+        print("Title: ", video["title"], "| Trending date: ", video["trending_date"], "| Channel title", video["channel_title"],
+        "| Publish time: ", video["publish_time"], "| Views: ", video["views"], "| Likes: ", video["likes"], "| Dislikes: ", video["dislikes"], "| Tags: ", video["tags"])
+        counter +=1
+        if counter == numberVideos:
+            break
 
 
 #---------------------------------------
@@ -101,13 +110,20 @@ while True:
             printResultsReq1(result, numberVideos)
     
     elif int(inputs[0]) == 3:
-        pass
+        printResultsReq2()
 
     elif int(inputs[0]) == 4:
         bestCategory = str(input("Ingrese la categoria de videos que desea consultar: ")).strip().lower()
         results = controller.thirdRequirement(catalog, bestCategory)
-        printREsultsReq3(results)
+        printResultsReq3(results)
 
+    elif int(inputs[0]) == 5:
+        numberVideos = int(input("Ingrese el número de videos con más likes que desea encontrar: "))
+        bestCountry = input("Ingrese el pais sobre el cual quiere encontrar los videos con mas likes: ").lower()
+        bestTag = input("Ingrese el tag de videos que desea consultar: ")
+        result = controller.forthRequirement(catalog,bestCountry,bestTag)
+        printResultsReq4(result,numberVideos)
+        print("Estos son el top " + str(numberVideos)+ " videos encontrados para el pais y la categoria.")
             
 
 

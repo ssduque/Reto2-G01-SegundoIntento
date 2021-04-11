@@ -26,6 +26,7 @@ import tracemalloc
 import config as cf
 import model
 import csv
+from DISClib.ADT import list as lt
 
 """
 El controlador se encarga de mediar entre la vista y el modelo.
@@ -61,7 +62,7 @@ def loadData(catalog):
     return delta_time, delta_memory
 
 def loadVideos(catalog):
-    videosfile =  cf.data_dir + 'Samples/videos-large.csv'
+    videosfile =  cf.data_dir + 'Samples/videos-5pct.csv'
     input_file = csv.DictReader(open(videosfile, encoding='utf-8'))
     for video in input_file:
         model.addVideo(catalog, video)
@@ -105,6 +106,16 @@ def thirdRequirement(catalog, bestCategory):
         results = model.thirdRequirement(catalog, bestCategoryId)
         #results = videoMayor,repsMayor
         return results
+
+def forthRequirement(catalog,bestCountry,bestTag):
+    videoList = model.fourthRequirement(catalog, bestCountry)
+    tagList = lt.newList(datastructure="SINGLE_LINKED")
+    for video in lt.iterator(videoList):
+        if bestTag in video["tags"]:
+            lt.addLast(tagList, video)
+    sortedList = mergeSortBylikes(tagList)
+    return sortedList
+    
 
 def getTime():
     """
